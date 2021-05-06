@@ -1,0 +1,11 @@
+apiVerson: v1
+king: Pod
+metadata:
+  name: getaclubapp
+  namespaces: getaclub
+
+spec:
+  conatiners:
+    - name: getaclubapp
+    ports:
+      - containerPort: 80      
