@@ -34,6 +34,8 @@ resource "azurerm_resource_group" "getaclubapp" {
   location = var.location
 }
 
+ 
+
 #Config resource network
 resource "azurerm_virtual_network" "getaclubapp" {
   name                = "${var.prefix}-network"
@@ -52,10 +54,23 @@ resource "azuread_application" "getaclubapp" {
   oauth2_allow_implicit_flow = true
 }
 
-#Config resource  Azure princial service
-resource "azuread_service_principal" "getaclubapp" {
+#Config resource  Azure plan service
+resource "azuread_service_plan" "getaclubapp" {
   application_id               = "${azuread_application.getaclubapp.application_id}"
   app_role_assignment_required = false
+  resource_group_name = azurerm_resource_group.getaclubapp.name
+  sku{
+    tier = "Free"
+    size = "1"
+  }
+}
+
+#Config resource  Azure service to make
+resource "azuread_service" "getaclubapp" {
+  name     = "getaclubapp"
+  location = azurerm_resource_group.getaclubapp.location
+  resource_group_name = azurerm_resource_group.getaclubapp.name
+  app_service_plan_id = azurerm_resource_group.getaclubapp.id
 }
 
 #Config resource  kubernetes cluster
