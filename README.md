@@ -1,10 +1,10 @@
 # DevOps Pipeline App Example
 
-En este mini proyecto vamos ilustrar de forma rapida y sencilla como proveernos de infraestructura como codigo, teniendo una aplicacion en nodejs sencilla usaremos docker, kubernetes, teraform y azure cloud
+En este mini proyecto vamos ilustrar de forma rapida y sencilla como proveernos de infraestructura como codigo, teniendo una aplicacion senmcilla en nodejs sencilla usaremos docker, kubernetes, teraform y azure cloud.
 
 ## Comenzando 🚀
 
-Puedes obtener el codigo clonando el code este repositorio y ejecutando los pasos descritos a continuacion
+Puedes obtener el codigo clonando el code este repositorio y ejecutando los pasos descritos a continuacion.
 
 
 ### Pre-requisitos 📋
@@ -21,7 +21,7 @@ nodejs --version
 Creaqmos una carperta con el nombre de nuestro proyecto para este caso la nombramos "code" 
 
 ```
-mkDir code
+mkdir code
 ```
 Luego los vamos a esa carpeta 
 
@@ -37,9 +37,7 @@ touch Dockerfile
 touch .dockerignore
 touch package.json
 ```
-el contenido de cada archivo los podemos encontrar en el repositorio
-
-ahora generamos dependencias y arrancamos la app
+el contenido de cada archivo los podemos encontrar en el repositorio, ahora generamos dependencias y arrancamos la app
 ```
 sudo npm install express -g
 npm init -y
@@ -49,7 +47,7 @@ Si vas a un browser y miras la url http://localhost:3000 veras el contenido que 
 
 ## Docker ⚙️
 
-Una vez estemos en la carpeta raiz del proyecto, es decir en la carpeta code vamos a crear la imagen nuestra aplicacion.
+Una vez estemos en la carpeta raiz del proyecto, es decir, en la carpeta code vamos a crear la imagen nuestra aplicacion.
 ```
 docker build -t getaclubapp .
 ```
@@ -79,15 +77,15 @@ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/miniku
 # Arrancamos minikube
 ./minikube start
 ```
-ahora, vamos a instañar el cliente de kubectl de la sicueinte manera:
+ahora, vamos a instalar el cliente de kubectl de la siguiente manera:
 ```
-#Aca lo descargamos
+# Aca lo descargamos
 curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 
-# Importante le damos permisos de ejecución
+# Importante, le damos permisos de ejecución al archivo
 chmod 777 ./kubectl
 
-# Super, ahora lo llevamos a la carpeta /usr/local/bin para que esté disponible en nuestra sesion
+# Super!!!, ahora lo llevamos a la carpeta /usr/local/bin para que esté disponible en nuestra sesion, sin mas
 sudo mv ./kubectl /usr/local/bin/kubectl
 
 #Listo ahora para confirmar vemos la version que instalamos con el siguietne comando:
@@ -100,10 +98,10 @@ ubectl get nodes
 Como hemos visto con el ultimo comando auin nos lista ningun nodo aparte del de minikube que ya habiamos instalado con anterioridad.
 Bien, ahora, vamos a desplegar nuestra imagen de docker que ya teniamos antes creada en la sesion de Docker, 
 
-Importante: Recordemos que Kubernes se manja arquitectura master slave para los pods, el master distribuye los trabajos a ejecutar y los manda alos esclavos que ejecuten la tarea, esto lo hace teneindo en cuenta CPU, memoria etc, estas reglkas tambien las podemos configurar, bien hagamos nuestro nuestro despliegue.
+Importante: Recordemos que Kubernes se maneja arquitectura master/slave para los pods, el master distribuye los trabajos a ejecutar y los manda a los esclavos para que ejecuten la tarea, esto lo hace teniendo en cuenta CPU, memoria, etc, estas reglas tambien las podemos configurar, bien hagamos nuestro nuestro despliegue.
 
 ```
-# despues de la sentencia deployment le damos un nombre a nuestra imagen y en --image le pasamos el nombre de nuestra imagen
+# despues de la sentencia deployment le damos un nombre a nuestra cluster "getaclubapp" y en --image le pasamos el nombre de nuestra imagen "getaclubapp" 
 kubectl create deployment getaclubapp –image=getaclubapp
 ```
 
@@ -166,6 +164,8 @@ kubectl get pods
 ```
 
 Vemos que en la columna READY el escalamiento que le hemos pasado. tambien esta auto-escala la podemos hacer en cualquier instante para aumentar las replicas, simplemente cambiamos a cuantas replicas necesitamos para 4 seria --replicas=4 para 6 sera --replicas=6 y asi sucesivamente.
+
+Tambien puesdes ver los archivos de configuracion en la carpeta kubernetes de este repositorio.
 
 
 ### Terraform 📦
@@ -230,12 +230,30 @@ resource "azuread_application" "getaclubapp" {
   oauth2_allow_implicit_flow = true
 }
 ```
-configuramos nuestro servicio principal:
+configuramos nuestro servicio plan:
 
 ```
-resource "azuread_service_principal" "getaclubapp" {
+#Config resource  Azure plan service
+resource "azuread_service_plan" "getaclubapp" {
   application_id               = "${azuread_application.getaclubapp.application_id}"
   app_role_assignment_required = false
+  resource_group_name = azurerm_resource_group.getaclubapp.name
+  sku{
+    tier = "Free"
+    size = "1"
+  }
+}
+```
+
+Ahora configuracmos nuestro app como servicio
+
+```
+#Config resource  Azure service to make
+resource "azuread_service" "getaclubapp" {
+  name     = "getaclubapp"
+  location = azurerm_resource_group.getaclubapp.location
+  resource_group_name = azurerm_resource_group.getaclubapp.name
+  app_service_plan_id = azurerm_resource_group.getaclubapp.id
 }
 ```
 
@@ -289,13 +307,50 @@ resource "azurerm_kubernetes_cluster" "getaclubapp" {
 
 Como vemos a este u8ltimo le indicamos que maquinas o tipo de pods vamos atener en nuestro cluster, configurandole el servicio principal antes declarado, la red, el pool de nodos la locacion etc, tambien tenmos que algunos datos se pasan por configuracion de variables las cuale sestan declaradas en el archivo variable.tf
 
+Bueno, como bien sabemos terraform tiene como pipeline o ciclo de vida de inicializar, planificar, aplicar y destruir nuestra infraestructura, en ese orden de ideasa ahora vamos a incializar:
 
+```
+terraform init
+```
+
+Aca vemos que descargo automaticamente los plugin y dependencias necesarias para trabajar 
+
+Ahora vamos a planificar, ejecutando:
+
+```
+terraform plan
+```
+
+Importante:: A este punto pueda que nos pida login, si es que aun no lo hemos configurado, para eso descargamos el CLI lo instalamos y ejecutamos el comando:
+```
+az login
+```
+Este comando te abrira el browser donde te pedira que te logues y que apruebas con tu cuenta dodne tienes la suscripcion del proyecto en azure.
+para las salidas de operaciones tenemos el archivo outputs.tf, ahora bien primero planificamos para primero tener los recueros definidos y asi evitamos sobve costos y elimiar algo que debemos 😊
+
+Ahora vamos a la siguiente step del clico de vida el cual es aplicar
+
+```
+terraform apply -auto-approve
+```
+
+Le pasamos el parametro -autoa-approve para forzar los cambios necesarios automaticamente, esto pueda que demore un rato.
+
+Al terminar si vamos a la consola de nuestro proyecto o panel de Azure https:/portal.azure.com de nuestro proyecto en la sesion de Resources groups en la lista de items vemos nuestro recurso debe aprecer con el nombre gectacapp-k8s-app si le damos click nos miuestra mas detalles.
+
+y eso es todo con esto vemos un sencillo ejemplo de como realizar DevOps infraestructura como codigo.😊 😊 😊
 
 
 ## Wiki 📖
 
-Puedes encontrar mucho más de cómo utilizar este proyecto en nuestra [Wiki](https://github.com/tu/proyecto/wiki)
- 
+A este material te puedes apoyar con las siguientes links:
+
+https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt
+https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs
+https://kubernetes.io/es/docs/tasks/tools/
+https://www.docker.com/
+https://nodejs.org/es/
+
 
 ## Autor ✒️
 
