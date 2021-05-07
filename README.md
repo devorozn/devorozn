@@ -134,7 +134,7 @@ ubectl get nodes
 kubectl describe nodes
 ```
 
-Vemos que nos muestra nuestra app desplegada y ademas nos mueysra el flujo completo que hemos hecho.
+Vemos que nos muestra nuestra app desplegada y ademas nos muestra el flujo completo que hemos hecho.
 
 Pero, aun no podemos ver nuestra app,¿ pero por que? ya esta desplegada nuestra app aun no la hemos expuesto y tenemos que exponerla para que se pueda ver desde un browser, y esto lo hacemos ejecutando el siguietne comando:
 
@@ -151,7 +151,7 @@ si ejecutamos ahora el siguietne comando:
 kubectl get services
 ```
 
-Vemos la descriocion pero ahora tiene una externa(pero ten en cuanta que como usamos minikube no tendremos una ip externa publica) pero ya demos nuestra app
+Vemos la descripcion pero ahora tiene una externa(pero ten en cuanta que como usamos minikube no tendremos una ip externa publica) pero ya demos nuestra app
 
 Por ultimo para automarizar mas, vamos a escalar nuestra app hacia 3 replicas de pods con el siguietne comando:
 
@@ -185,7 +185,7 @@ sudo mv terraform /usr/local/bin
 # Ahora vemos que version tenemos instalada con:
 terraform -v
 ```
-Importante: Recordemos que en terraform existen dos conceptos muy importante apra tener en cuenta, primero los proveedores quienes son los que nos van a dar en si la infraestructura, es decir, donde va estar virtualmente nuestro cluster y segundo los recursos o provisionador, estos son en si los servidores o maquines red etc.
+Importante: Recordemos que en terraform existen dos conceptos muy importante para tener en cuenta, primero los proveedores quienes son los que nos van a dar en si la infraestructura, es decir, donde va estar virtualmente nuestro cluster y segundo los recursos o provisionador, estos son en si los servidores o maquines red etc.
 
 Para este caso vamos consfigurar el proveedor de Azure
 
@@ -325,8 +325,8 @@ Importante:: A este punto pueda que nos pida login, si es que aun no lo hemos co
 ```
 az login
 ```
-Este comando te abrira el browser donde te pedira que te logues y que apruebas con tu cuenta dodne tienes la suscripcion del proyecto en azure.
-para las salidas de operaciones tenemos el archivo outputs.tf, ahora bien primero planificamos para primero tener los recueros definidos y asi evitamos sobve costos y elimiar algo que debemos 😊
+Este comando te abrira el browser donde te pedira que te logues y que apruebes con tu cuenta donde tienes la suscripcion del proyecto en azure.
+para las salidas de operaciones tenemos el archivo outputs.tf, ahora bien primero planificamos para primero tener los recursos definidos y asi evitamos sobve costos y elimiar algo que debemos 😊
 
 Ahora vamos a la siguiente step del clico de vida el cual es aplicar
 
